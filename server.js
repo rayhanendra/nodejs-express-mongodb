@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 
 require('./app/routes/tutorial.routes')(app);
 require('./app/routes/customer.routes')(app);
+require('./app/routes/identifier.routes')(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
