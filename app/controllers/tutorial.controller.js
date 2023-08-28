@@ -1,34 +1,69 @@
 const db = require('../models');
 const Tutorial = db.tutorials;
+const { create: createImage } = require('../controllers/image.controller.js');
 
 // Create and Save a new Tutorial
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
+  const { title, description, published, images } = req.body;
+  console.log('req.body: ' + req.body.images);
   // Validate request
-  if (!req.body.title) {
-    res.status(400).send({ message: 'Content can not be empty!' });
+  if (!title) {
+    res.status(400).send({ message: 'Title can not be empty!' });
     return;
   }
 
-  // Create a Tutorial
-  const tutorial = new Tutorial({
-    title: req.body.title,
-    description: req.body.description,
-    published: req.body.published ? req.body.published : false,
-  });
+  if (!description) {
+    res.status(400).send({ message: 'Description can not be empty!' });
+    return;
+  }
 
-  // Save Tutorial in the database
-  tutorial
-    .save(tutorial)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || 'Some error occurred while creating the Tutorial.',
-      });
+  try {
+    const tutorial = await Tutorial.create({
+      title,
+      description,
+      published: published ? published : false,
     });
+
+    console.log('Created Tutorial: ' + tutorial);
+
+    let updatedTutorial = tutorial;
+    if (images && images.length > 0) {
+      updatedTutorial = await images.map((image) => {
+        return createImage(tutorial._id, image);
+      });
+      console.log('Created Images');
+    }
+
+    return res.send({
+      tutorial: updatedTutorial,
+      message: 'Tutorial was created successfully!',
+    });
+  } catch (error) {
+    console.log('Error creating Tutorial: ' + error);
+    return res.status(500).send({
+      message: error.message || 'Some error occurred while creating Tutorial.',
+    });
+  }
 };
+// // Create a Tutorial
+// const tutorial = new Tutorial({
+//   title: req.body.title,
+//   description: req.body.description,
+//   published: req.body.published ? req.body.published : false,
+// });
+
+// // Save Tutorial in the database
+// tutorial
+//   .save(tutorial)
+//   .then((data) => {
+//     res.send(data);
+//   })
+//   .catch((err) => {
+//     res.status(500).send({
+//       message:
+//         err.message || 'Some error occurred while creating the Tutorial.',
+//     });
+//   });
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {

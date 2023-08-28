@@ -4,6 +4,14 @@ module.exports = (mongoose) => {
       title: String,
       description: String,
       published: Boolean,
+      author: String,
+      images: [],
+      comments: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Comment',
+        },
+      ],
     },
     { timestamps: true }
   );

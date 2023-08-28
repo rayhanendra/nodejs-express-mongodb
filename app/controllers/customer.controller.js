@@ -22,7 +22,6 @@ exports.create = async (req, res) => {
   }
 
   // Save Customer in the database
-
   try {
     const customer = await Customer.create({
       name,
